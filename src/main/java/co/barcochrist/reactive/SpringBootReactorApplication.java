@@ -20,8 +20,18 @@ public class SpringBootReactorApplication implements CommandLineRunner {
   public void run(String... args) throws Exception {
     Flux<String> names = Flux
         .just("Christian", "Andres", "Camila", "Sara")
-        .doOnNext(System.out::println);
+        .doOnNext(name -> {
+          if (name.isBlank()) {
+            throw new RuntimeException("Name is blank");
+          }
+          System.out.println(name);
+        });
 
-    names.subscribe(log::info);
+    names.subscribe(
+        log::info,    //success execution
+        error -> log.error(error.getMessage()),    //handle exception
+        () -> System.out.println("Observable execution finished")
+        //executed when the subscription ends
+    );
   }
 }
